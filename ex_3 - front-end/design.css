@@ -1,0 +1,100 @@
+body {
+	background-image: url("bg_honeycomb.jpg");
+	color: rgb(214, 212, 212);
+	font-family: 'Times New Roman', Times, serif;
+	overflow-x: hidden;
+	font-size: 18px;
+}
+body::-webkit-scrollbar {
+	width: 10px;
+}
+body::-webkit-scrollbar-track {
+	background: #5b5a5a;
+}
+body::-webkit-scrollbar-thumb {
+	background: #3f3398;
+}
+body::-webkit-scrollbar-thumb:hover {
+	background: #3f3398;
+}
+p {
+	font-size: 18px;
+}
+h1 {
+	font-size: 40px;
+	font-weight: bold;
+}
+h2 {
+	font-size: 30px;
+}
+h3 {
+	font-size: 20px;
+}
+h4 {
+	font-size: 15px;
+}
+h5 {
+	font-size: 10px;
+}
+h6 {
+	font-size: 5px;
+}
+
+a, a:active, a:visited {
+	transition: all 0.5s ease;
+	color: rgb(214, 212, 212);
+	text-decoration: none;
+}
+a:hover {
+	color: rgb(167, 168, 204);
+	text-decoration: underline;
+}
+
+.spacer-15 {
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.container, .container-fluid {
+	padding-left: 15px;
+	padding-right: 15px;
+	padding-top: 40px;
+	padding-bottom: 5px;
+	background-color: #4e4c4c;
+	border-bottom: 2px solid #cdcccc;
+	border-left: 2px solid #cdcccc;
+	border-right: 2px solid #cdcccc;
+	border-radius: 0px 0px 15px 15px;
+}
+.block {
+	display: block;
+}
+.block-center {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.center {
+	text-align: center;
+}
+.right {
+	text-align: right;
+}
+.left {
+	text-align: left;
+}
+
+.bold {
+	font-weight: bold;
+}
+.underline {
+	text-decoration: underline;
+}
+
+input, button, select, textarea {
+	border-radius: 5px;
+	border: 1px solid #cdcccc;
+	padding: 5px;
+	background-color: #808080;
+}

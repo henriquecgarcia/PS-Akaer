@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Execício 3 - Front-End | Akaer</title>
+	<!-- Incluindo o Bootstrap e jQuery da CND do Google -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+	<!-- Incluindo o Chart.js -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
+	<link rel="stylesheet" href="design.css">
+</head>
+<body>
+	<div class="container">
+		<h1 class="center bold">Exercício 3 - Front-End do processo seletivo da Akaer</h1>
+
+		<div class="spacer-15"></div>
+
+		<!-- criando o filtro de tempo -->
+		<div class="center">
+			<h2 class="bold">Filtro de tempo</h2>
+			<div class="spacer-15"></div>
+			<div class="row">
+				<div class="col-md-4">
+					<button id="allTime">Todos os dados</button>
+				</div>
+
+				<!-- 2 date selectors for the start date and the end date -->
+				<div class="col-md-4">
+					<label for="startDate">Data inicial</label>
+					<input type="date" name="startDate" id="startDate">
+				</div>
+				<div class="col-md-4">
+					<label for="endDate">Data final</label>
+					<!-- Criando o input com a data, tendo como padrão o dia de hoje, usando js -->
+					<input type="date" name="endDate" id="endDate">
+				</div>
+			</div>
+		</div>
+
+		<div class="spacer-15"></div>
+
+		<!-- criando o grafico com os filtros -->
+		<div class="center">
+			<h2 class="bold">Valor do dollar em R$</h2>
+			<h4 class="bold">Os dados obtidos e presentes no gráfico são de <span id="start_date" class="underline"></span> até <span id="today_date" class="underline"></span></h4>
+			<canvas id="grafico"></canvas>
+		</div>
+
+		<div class="spacer-15"></div>
+	</div>
+
+	<script>
+		var ctx;
+		var grafico;
+		var allLabels = [];
+		var allData = [];
+		var timeFilter = 'all';
+
+		function getLastMonth() {
+			// Obtendo o valor do dolar em tempo real do Banco Central do Brasil utilizando o Fetch API, obtendo os dados do ultimo ano e atualizando o grafico
+			fetch("https://economia.awesomeapi.com.br/json/daily/USD-BRL/365")
+			.then(function(response){
+				return response.json();
+			})
+			.then(function(data) {
+				data = data.reverse();
+				for (var i = 0; i < data.length; i++) {
+					var dollarValue = data[i].bid;
+					data[i].timestamp = parseInt(data[i].timestamp);
+					var date = new Date( data[i].timestamp * 1000);
+					var month = date.getMonth() + 1;
+					var year = date.getFullYear();
+					var day = date.getDate();
+					var hour = date.getHours();
+					var minute = date.getMinutes();
+					var second = date.getSeconds();
+
+					var label = day + "/" + month + "/" + year;
+					allLabels.push(label);
+					allData.push(dollarValue);
+				}
+				grafico.update();
+			});
+		}
+
+		function getDollarValue(){
+			// Obtendo o valor do dolar em tempo real do Banco Central do Brasil utilizando o Fetch API e atualizando o grafico
+			fetch("https://economia.awesomeapi.com.br/last/USD-BRL")
+			.then(function(response){
+				return response.json();
+			})
+			.then(function(data){
+				// Obtendo o valor do dolar em tempo real do Banco Central do Brasil utilizando o Fetch API e atualizando o grafico
+				var dollarValue = data.USDBRL.bid;
+				var date = new Date();
+				var month = date.getMonth() + 1;
+				var year = date.getFullYear();
+				var day = date.getDate();
+				var hour = date.getHours();
+				var minute = date.getMinutes();
+				var second = date.getSeconds();
+				var label = day + "/" + month + "/" + year;
+				allLabels.push(label);
+				allData.push(dollarValue);
+				grafico.update();
+			});
+		}
+
+		$(function(){
+			$("#endDate").val( new Date().toISOString().slice(0,10) );
+			$("#startDate").val( new Date( new Date().getTime() - 1000*60*60*24*365 ).toISOString().slice(0,10) );
+
+			ctx = document.getElementById('grafico').getContext('2d');
+
+			grafico = new Chart(ctx, {
+				type: 'line',
+				data: {
+					labels: allLabels,
+					datasets: [{
+						label: 'Valor do dollar em R$',
+						backgroundColor: 'rgba(0, 0, 0, 0)',
+						borderColor: 'rgb(255, 99, 132)',
+						data: allData
+					}]
+				},
+				options: {
+					// Trocando a cor das labels
+					legend: {
+						labels: {
+							fontColor: 'white'
+						}
+					},
+					scales: {
+						yAxes: [{
+							ticks: {
+								fontColor: 'white'
+							},
+							gridLines: {
+								color: 'rgba(255, 255, 255, 0.1)'
+							}
+						}],
+						xAxes: [{
+							ticks: {
+								fontColor: 'white'
+							},
+							gridLines: {
+								color: 'rgba(255, 255, 255, 0.1)'
+							}
+						}]
+					}
+				}
+
+			});
+
+			// Atualizando #today_date com a data de hoje
+			$("#start_date").text( $("#startDate").val() );
+			$("#today_date").text( $("#endDate").val() );
+			
+			// Obtendo os dados do ultimo mes e atualizando o grafico
+			getLastMonth();
+
+			getDollarValue(); // Atualizando os dados de valor do dollar
+			// Atualizando os dados de valor do dollar uma vez por dia
+			setInterval(function(){
+				getDollarValue();
+			}, 1000*60*60*24);
+		});
+
+		$("#startDate, #endDate").change(function(){
+			var start = new Date( $("#startDate").val() );
+			var _end = new Date( $("#endDate").val() );
+			start = start.getTime();
+			_end = _end.getTime();
+			if (start > _end) {
+				var hold = start;
+				start = _end;
+				_end = hold;
+			}
+
+			var newLabels = [];
+			var newData = [];
+			for (var i = 0; i < allLabels.length; i++) {
+				var label = allLabels[i];
+				var date = new Date(label);
+				var timestamp = date.getTime();
+				if (timestamp >= start && timestamp <= _end) {
+					newLabels.push(label);
+					newData.push(allData[i]);
+				}
+			}
+			grafico.data.labels = newLabels;
+			grafico.data.datasets[0].data = newData;
+			grafico.update();
+		});
+
+		$("#allTime").click(function(){
+			$("#startDate").val( new Date( new Date().getTime() - 1000*60*60*24*90 ).toISOString().slice(0,10) );
+			$("#endDate").val( new Date().toISOString().slice(0,10) );
+
+			grafico.data.labels = allLabels;
+			grafico.data.datasets[0].data = allData;
+			grafico.update();
+		});
+
+	</script>
+</body>
+</html>
